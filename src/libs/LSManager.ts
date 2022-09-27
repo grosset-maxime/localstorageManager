@@ -11,7 +11,7 @@ export interface LSObj {
  * @constant {string} LS_NAME - LS key name.
  * @private
  */
-const LS_NAME = 'AdminWAPv2';
+const LS_NAME = 'myLsKeyName';
 
 /**
  * @property {LSObj} ls - LS object cache.
@@ -49,7 +49,11 @@ const normalizePath = (path: string = ''): string => {
  * @private
  */
 const writeLS = (): void => {
-  localStorage.setItem(LS_NAME, JSON.stringify(ls));
+  try {
+    localStorage.setItem(LS_NAME, JSON.stringify(ls));
+  } catch (e) {
+    console.error('Fail to write LS.', e);
+  }
 };
 
 /**
@@ -182,8 +186,8 @@ export const setLS = (path: string, value: LSObj | LSValue = null): void => {
     } else {
       op = 'add';
 
-      if (path.lastIndexOf('/') > 0) {
-        const pathParts = path.split('/').filter((s) => s);
+      const pathParts = path.split('/').filter((s) => s);
+      if (pathParts.length > 1) {
         let partialpath = '';
 
         for (let i = 0; i < pathParts.length - 1; i++) {
@@ -192,8 +196,6 @@ export const setLS = (path: string, value: LSObj | LSValue = null): void => {
 
           if (!isPathExist(partialpath)) {
             patches.push({ op, path: partialpath, value: {} });
-          } else {
-            break;
           }
         }
       }
